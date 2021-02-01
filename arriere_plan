@@ -1,0 +1,101 @@
+void reception_appel()
+{
+  ecran(0x0000);
+  crs(100, 100);
+  couleur(0xFFFF);
+  taille(3);
+  tft.print("appel");
+  long chrono4 = millis();
+  while(chrono4 + 20000 > millis())
+  {
+    
+  }
+}
+
+void ram()
+{
+  tft.fillRect(260, 5, 54, 20, ILI9341_BLACK);
+  if(ramlibre() > 3000){
+    tft.fillRect(262, 7, (((7000-ramlibre()) * 50) / 7000), 16, ILI9341_GREEN);
+  }else{if(ramlibre() > 1000){
+    tft.fillRect(262, 7, (((7000-ramlibre()) * 50) / 7000), 16, ILI9341_ORANGE);
+  }else{
+    tft.fillRect(262, 7, (((7000-ramlibre()) * 50) / 7000), 16, ILI9341_RED);
+  }}
+}
+
+void actu()
+{
+  if(chrono1 + actu_heure < millis())
+  {
+    couleur(0x0000);
+    taille(2);
+    tft.fillRect(0, 0, 320, 30, 0x76C9);
+    tft.drawLine(0, 30, 320, 30, ILI9341_BLACK);
+
+    Serial1.println("AT+CSQ");
+    delay(10);
+    byte curseursim = 1;
+    char messagesim800l[30];
+    while(Serial1.available() > 0){
+      messagesim800l[curseursim] = Serial1.read();
+      curseursim++;
+    }
+    byte qualite = (messagesim800l[16]-48)*10 +messagesim800l[17]-48;
+      
+    tft.setTextColor(ILI9341_BLACK);
+    tft.setCursor(5, 3);
+    taille(2);
+    if(qualite == 0){
+      taille(1);
+      tft.print("pas de reseau");
+    }else{
+      if(qualite < 10){
+        tft.print("o)");
+        }else{
+      if(qualite < 20){
+          tft.print("oo");
+      }else{
+          tft.print("ooo");
+      }
+    }
+    }    
+    tft.setTextColor(ILI9341_BLACK);
+    tft.setCursor(80, 3);
+    tft.print(rtc.getTimeStr());
+
+    ram();
+    crs(240, 2);
+    chrono1 = millis();
+
+  }
+
+  if(Serial1.available())
+  {
+    Serial.print("analise: \n  ->");
+    delay(200);
+    char message[20];
+    for(int i = 0; Serial1.available(); i++)
+    {
+      message[i] = Serial1.read();
+    }
+    if(strstr(message ,"RING") != NULL)
+    {
+      Serial.println("sonnerie");
+      reception_appel();
+    }else
+    {
+      Serial.println("non trouvé");
+    }
+  }
+  if(chrono2 + 5000 < millis() && game == false)
+  {
+    ram();
+    chrono2 = millis();
+  }
+
+  if(chrono4 + 30000 < millis())
+  {
+    
+  }
+}

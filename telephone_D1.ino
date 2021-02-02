@@ -352,7 +352,7 @@ void pong()
   float direction_pong[2] = {2, 2};
   float  raquette = 100;
   long conteur = 0;
-  byte score = 0;
+  unsigned score = 0;
   conteur = millis();
   float pong[2] = {10,10};
     while(true)

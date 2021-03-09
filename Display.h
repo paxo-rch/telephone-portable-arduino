@@ -15,25 +15,7 @@ TSPoint tp;
 #define MINPRESSURE 200
 #define MAXPRESSURE 1000
 
-void screen()
-{
-  tp = ts.getPoint();
-  pinMode(XM, OUTPUT);
-  pinMode(YP, OUTPUT);
-  x = map(tp.x, TS_LEFT, TS_RT, 0, tft.width());
-  y = map(tp.y, TS_TOP, TS_BOT, 0, tft.height());
-}
 
-void while_not_press()
-{
-  while(!(tp.z > MINPRESSURE && tp.z < MAXPRESSURE))
-    screen();
-}
-
-bool touch()
-{
-  return (tp.z > MINPRESSURE && tp.z < MAXPRESSURE);
-}
 
 void init_bar(){
   tft.setColor(66, 167, 255);

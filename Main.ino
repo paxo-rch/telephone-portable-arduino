@@ -16,7 +16,7 @@
 #include "hardwere.h"
 #include "Display.h"
 #include "Files.h"
-#include "background.h"
+#include "Background.h"
 #include "Utils.h"
 #include "Apps.h"
 
@@ -53,7 +53,11 @@ void setup() {
   
   while(!get_code());
   
-  menu();
+  chrono_actu_hour = millis();
+  actu();
+  //while(!get_code());
+  exit_all:
+    menu();
 }
 
 void loop() {

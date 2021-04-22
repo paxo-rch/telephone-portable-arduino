@@ -2,8 +2,7 @@ String ad_message() { return "/arduino/apps/message/message.bmp"; }
 
 byte number_new_message()
 {
-    File location = SD.open("/arduino/apps/message/new");
-    File directory = location;
+    File directory = SD.open("/arduino/apps/message/new");
     int indent = 0;
     byte i = 0;
     File entry = directory.openNextFile();
@@ -19,15 +18,9 @@ byte number_new_message()
 
 String get_number_phone_new_message(byte number)
 {
-    char *number_char;
-    String number_string;
-    itoa(number, number_char, 3);
-    for (byte i = 0; i < 1; i++)
-    {
-        number_string += number_char[i];
-        Serial.print(number_char[i]);
-    }
-    String adress = "/arduino/apps/message/new/" + number_string + ".txt";
+    String adress = "/arduino/apps/message/new/";
+    adress += number;
+    adress += ".txt";
     File file_new_message = SD.open(adress, FILE_READ);
 
     String string_number = "";
@@ -144,20 +137,10 @@ void new_message(String sms, String num)
 {
     byte number = number_new_message() + 1;
 
-    char *number_char;
-    String number_string;
-    itoa(number, number_char, 3);
+    String adress = "/arduino/apps/message/new/";
+    adress += number;
+    adress += ".txt";
 
-    for (byte i = 0; i < 1; i++)
-    {
-        number_string += number_char[i];
-    }
-
-    String adress = "/arduino/apps/message/new/" + number_string + ".txt";
-    Serial.print("\nfichier crée numero: ");
-    Serial.println(number_string);
-    Serial.print("\necriture numero: ");
-    Serial.println(num);
     File file_open = SD.open(adress, FILE_WRITE);
 
     file_open.println(num);
@@ -171,21 +154,10 @@ void puts_messages(char *input, int lines)
         char *message = get_message(input, i);
         char *phone_number = get_phone_number(input, i);
 
-        String string_message = "";
-        String string_phone_number = "";
-
-        for (short i = 0; i < strlen(message); i++)
-        {
-            string_message += message[i];
-        }
+        String string_message = message;
+        String string_phone_number = phone_number;
 
         free(message);
-
-        for (short i = 0; i < strlen(phone_number); i++)
-        {
-            string_phone_number += phone_number[i];
-        }
-
         free(phone_number);
 
         new_message(string_message, string_phone_number);
@@ -196,17 +168,19 @@ void download_messages()
 {
     Serial1.println("AT+CMGF=1");
     delay(100);
+
     while (Serial1.available())
         Serial1.read();
+
     Serial1.println("AT+CMGL=\"REC UNREAD\"");
-    char msg_sim[100];
+    String msg_sim;
     short i = 0;
-    while (i < 100)
+    while (1)
     {
         if (Serial1.available())
         {
-            msg_sim[i] = Serial1.read();
-            Serial.print(msg_sim[i]);
+            msg_sim += Serial1.read();
+
             i++;
             if (msg_sim[i - 1] == 'K')
             {
@@ -214,14 +188,15 @@ void download_messages()
             }
         }
     }
+    Serial.print(msg_sim);
     Serial1.println("AT+CMGD=4");
     Serial.println("\nfin serie");
 
+    char *msg_sim_char = msg_sim;
     if (i > 30)
-        puts_messages(msg_sim, 1);
+        puts_messages(msg_sim_char, 1);
     else
         Serial.println("pas de nouveaux messages");
-    Serial.println("\nfin enregistrement");
 }
 
 void draw_message_interface()
